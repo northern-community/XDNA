@@ -54,35 +54,30 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 //    timestamp before)
 // + Contains no strange transactions
 static Checkpoints::MapCheckpoints mapCheckpoints =
-    boost::assign::map_list_of(0, uint256("000003b39d72ad4da1eb2ef2d044032dd95750cc25c435ecad2a236dd22b99fe"))
-                              (50, uint256("000000224104db4572f767923cafd543f36b9a4d1eee117c4dc3e1961ca6371b"))
-                              (60200, uint256("00000000000031ba24b923e1966fbe17ae0cdff1efa9d1efc556e2a3cafb5c55"))
-                              (134000, uint256("0000000000c08ddeef3b04f5ead225a8d5f4765756d32407b74da5ca9c708b80"))
-                              (165000, uint256("00000000010f679ac3889908996bed4716f33de4608eb48594fd36b65f03831b"))
-                              (680700, uint256("0000000007151c76d2da2416f700269ef7f030a3ad8d0f788cb7107887df40fe"))
-                              (840000, uint256("f29504553a9a8a1c6d66602810e62501e7eb7a79891fe29709a99567c6e9033e"));
+    boost::assign::map_list_of(0, uint256("000"));
+
 
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
-    1581651020, // * UNIX timestamp of last checkpoint block
+    1651368205, // * UNIX timestamp of last checkpoint block
     1310912,      // * total number of transactions between genesis and last checkpoint
                 //   (the tx=... number in the SetBestChain debug.log lines)
     2000        // * estimated number of transactions per day after checkpoint
 };
 
 static Checkpoints::MapCheckpoints mapCheckpointsTestnet =
-    boost::assign::map_list_of(0, uint256("000006b020d0db323b363c4d762b6931cff1855fd8a85a4455f416a91e9424f1"));
+    boost::assign::map_list_of(0, uint256("000"));
 static const Checkpoints::CCheckpointData dataTestnet = {
     &mapCheckpointsTestnet,
-    1529667000,
+    1651368225,
     0,
     250};
 
 static Checkpoints::MapCheckpoints mapCheckpointsRegtest =
-    boost::assign::map_list_of(0, uint256("300552a9db8b2921c3c07e5bbf8694df5099db579742e243daeaf5008b1e74de"));
+    boost::assign::map_list_of(0, uint256("000"));
 static const Checkpoints::CCheckpointData dataRegtest = {
     &mapCheckpointsRegtest,
-    1529668200,
+    1651368255,
     0,
     100};
 
@@ -157,7 +152,7 @@ public:
         vXDNAFundKey = ParseHex("03b7a94485bb264d12fbffdddff462060e51a27e55f256b62648c25c1fb8bb565c"); // FundPubKey for fees
         nDevFee = 1; // DevFee %
         nFundFee = 2; //FundFee %
-        nDefaultPort = 1945;
+        nDefaultPort = 1949;
         bnProofOfWorkLimit = ~uint256(0) >> 20;
         bnStartWork = ~uint256(0) >> 24;
 
@@ -242,8 +237,8 @@ public:
         nLastPOWBlock = 682500;
         nModifierUpdateBlock = std::numeric_limits<decltype(nModifierUpdateBlock)>::max();
         nStartMasternodePayments = 1403728576; //Wed, 25 Jun 2014 20:36:16 GMT
-        nHEXHashTimestamp = 1533567600; // 6  August  2018, 15:00:00 GMT+00:00
-        nF2Timestamp      = 1540728000; // 28 October 2018, 12:00:00 GMT+00:00
+        nHEXHashTimestamp = 1651368205; // 6  August  2018, 15:00:00 GMT+00:00
+        nF2Timestamp      = 1652368205; // 28 October 2018, 12:00:00 GMT+00:00
         nF3ActivationHeight = 682500;
 
         /**
@@ -273,8 +268,36 @@ public:
 
         hashGenesisBlock = genesis.GetKeccakHash();
 
-        assert(hashGenesisBlock == uint256("000003b39d72ad4da1eb2ef2d044032dd95750cc25c435ecad2a236dd22b99fe"));
-        assert(genesis.hashMerkleRoot == uint256("89370975b13f97d8f9cfc373b0e9d5cc0e2e06b8dc283c76824e4df03ca2d60a"));
+
+        if(genesis.GetHash() != uint256("0x"))
+        {
+              printf("MSearching for genesis block...\n");
+              uint256 hashTarget;
+              hashTarget.SetCompact(genesis.nBits);
+              while(uint256(genesis.GetHash()) > uint256(hashTarget))
+              {
+                  ++genesis.nNonce;
+                  if (genesis.nNonce == 0)
+                  {
+                      printf("Mainnet NONCE WRAPPED, incrementing time");
+                      std::cout << std::string("Mainnet NONCE WRAPPED, incrementing time:\n");
+                      ++genesis.nTime;
+                  }
+                  if (genesis.nNonce % 10000 == 0)
+                  {
+                      printf("Mainnet: nonce %08u: hash = %s \n", genesis.nNonce, genesis.GetHash().ToString().c_str());
+                  }
+              }
+              printf("Mainnet block.nTime = %u \n", genesis.nTime);
+              printf("Mainnet block.nNonce = %u \n", genesis.nNonce);
+              printf("Genesis nBits: %08x\n", genesis.nBits);
+              printf("Genesis hashStateRoot = %s\n", genesis.hashStateRoot.ToString().c_str());
+              printf("Mainnet block.hashMerkleRoot: %s\n", genesis.hashMerkleRoot.ToString().c_str());
+              printf("Mainnet block.GetHash = %s\n", genesis.GetHash().ToString().c_str());
+        }
+
+      //  assert(hashGenesisBlock == uint256("000003b39d72ad4da1eb2ef2d044032dd95750cc25c435ecad2a236dd22b99fe"));
+      //  assert(genesis.hashMerkleRoot == uint256("89370975b13f97d8f9cfc373b0e9d5cc0e2e06b8dc283c76824e4df03ca2d60a"));
 
         vSeeds.push_back(CDNSSeedData("xdna.online", "seeds.seeder01.xdna.online"));     // Primary DNS Seeder
 
